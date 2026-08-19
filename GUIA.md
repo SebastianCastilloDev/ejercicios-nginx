@@ -9,17 +9,25 @@ perfecto: ese es el punto.
 
 ## Entorno (única parte que no practicás)
 
-Un container `nginx:alpine` en el puerto 8081, con tu carpeta `conf.d/`
-montada como config de servidores y tu carpeta `www/` como contenido.
+nginx instalado nativo en la máquina (`sudo apt install nginx`). Servicio
+gestionado por `service`. Todo vive en `/etc/nginx/`.
 
-- Levantar con tus archivos: `docker run -d --rm -p 8081:80 -v "$PWD/conf.d:/etc/nginx/conf.d:ro" -v "$PWD/www:/usr/share/nginx/html:ro" nginx:alpine`
-- Probar config: `docker exec <nombre> nginx -t`
-- Recargar config sin reiniciar: `docker exec <nombre> nginx -s reload`
-- Ver logs: `docker exec <nombre> tail -f /var/log/nginx/access.log`
-- Ver la config base del container (para aprender qué incluye): `docker exec <nombre> cat /etc/nginx/nginx.conf`
+- `nginx.conf` — la config principal (bloque `http`)
+- `sites-available/` — tus `server {}` sin activar, un archivo por sitio
+- `sites-enabled/` — links a los sitios activos
+- `conf.d/` — alternativa: cualquier `.conf` acá se carga solo
+- Contenido web por defecto: `/var/www/html`
+- Logs: `/var/log/nginx/access.log` y `error.log`
 
-Cada ejercicio vive en su propia carpeta, con `conf.d/` y `www/`. Al terminar,
-la borrás o seguís en la siguiente.
+```bash
+nginx -t                    # validar config (siempre antes de recargar)
+sudo service nginx reload   # aplicar cambios sin cortar conexiones
+sudo service nginx restart  # reiniciar
+sudo service nginx stop     # apagar
+```
+
+Cada ejercicio vive en su propia carpeta de config. Al terminar, la borrás
+o seguís en la siguiente.
 
 ---
 
@@ -84,7 +92,7 @@ la borrás o seguís en la siguiente.
 
 ## Reglas del lab
 
-1. **Nada de copiar.** Si necesitás mirar una solución, te la tenés que acordar de la doc oficial (`docker exec nginx-lab cat /etc/nginx/nginx.conf` es la única fuente permitida). Verificar ≠ copiar.
+1. **Nada de copiar.** Si necesitás mirar una solución, te la tenés que acordar de la doc oficial (`cat /etc/nginx/nginx.conf` y `nginx -T` son las únicas fuentes permitidas). Verificar ≠ copiar.
 2. **Un ejercicio, dos veces.** La segunda vez, de memoria, con otros nombres de rutas y hosts. Si dudaste en un `;` o en un nivel de bloque, no lo sabés todavía.
 3. **Antes de recargar, `nginx -t`.** Siempre.
 4. **Los errores son el progreso.** Un 404 inesperado te enseña más que diez aciertos.
