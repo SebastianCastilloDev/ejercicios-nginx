@@ -9,25 +9,28 @@ perfecto: ese es el punto.
 
 ## Entorno (única parte que no practicas)
 
-nginx instalado nativo en la máquina (`sudo apt install nginx`). Servicio
-gestionado por `service`. Todo vive en `/etc/nginx/`.
-
-- `nginx.conf` — la config principal (bloque `http`)
-- `sites-available/` — tus `server {}` sin activar, un archivo por sitio
-- `sites-enabled/` — enlaces a los sitios activos
-- `conf.d/` — alternativa: cualquier `.conf` aquí se carga solo
-- Contenido web por defecto: `/var/www/html`
-- Logs: `/var/log/nginx/access.log` y `error.log`
+Un container `nginx:alpine` en el puerto 8081. Tu carpeta `conf.d/` se
+monta como config de servidores y tu carpeta `www/` como contenido web.
+Es nginx puro: mismos archivos y mismas directivas que en un servidor real.
 
 ```bash
-nginx -t                    # validar config (siempre antes de recargar)
-sudo service nginx reload   # aplicar cambios sin cortar conexiones
-sudo service nginx restart  # reiniciar
-sudo service nginx stop     # apagar
+# levantar con tu config y tu contenido (desde la carpeta del ejercicio)
+docker run -d --name lab -p 8081:80 \
+  -v "$PWD/conf.d:/etc/nginx/conf.d:ro" \
+  -v "$PWD/www:/usr/share/nginx/html:ro" \
+  nginx:alpine
+
+docker exec lab nginx -t            # validar config (siempre antes de recargar)
+docker exec lab nginx -s reload     # aplicar cambios sin reiniciar
+docker logs -f lab                  # logs en vivo
+docker rm -f lab                    # borrar el ejercicio entero
 ```
 
-Cada ejercicio vive en su propia carpeta de config. Al terminar, la borras
-o sigues en la siguiente.
+Dentro del container: config principal en `/etc/nginx/nginx.conf`,
+servidores en `/etc/nginx/conf.d/`, logs en `/var/log/nginx/`.
+
+Cada ejercicio vive en su propia carpeta con `conf.d/` y `www/`. Al
+terminar, `docker rm -f lab` y sigues en la siguiente.
 
 ---
 
